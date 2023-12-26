@@ -5,6 +5,15 @@
  */
 
 function sleep(milliseconds) {
+    console.log(new Date);
+    return new Promise((resolve,reject)=>{
+        setTimeout(function(){
+            //console.log("hey yo yo yo");
+            console.log(new Date);
+            resolve();
+        },milliseconds)
+        
+    })
 }
 
 module.exports = sleep;
