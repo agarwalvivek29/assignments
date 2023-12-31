@@ -41,9 +41,93 @@
  */
   const express = require('express');
   const bodyParser = require('body-parser');
-  
+  const fs = require('fs');
+  const port = 3000;
   const app = express();
+  var todos = [];
+  var count = 0;
+
+  fs.readFile('todos.json','utf-8',(err,data)=>{
+    todos = JSON.parse(data).todos;
+    count = JSON.parse(data).count;
+  })
   
+  function updateDB(){
+    let newData = {
+      "count":count,
+      "todos":todos
+    }
+    var filedata = JSON.stringify(newData)
+    fs.writeFile('todos.json',filedata,'utf-8',(err)=>{
+      if(err){
+        console.error("Yo Error");
+      }
+      else{
+        console.log("Done bro!!");
+      }
+    })
+  }
+
   app.use(bodyParser.json());
   
+  app.get('/todos',(req,res)=>{
+    res.send(todos);
+  });
+
+  app.get('/todos/:id',(req,res)=>{
+    const id = req.params.id;
+    for(let ele of todos){
+      //console.log(ele);
+      if(ele.id==id){
+        return res.send(ele);
+      }
+    }
+    res.status(404).send("Item does not exist");
+  });
+
+  app.post('/todos',(req,res)=>{
+    let newTask=req.body;
+    count+=1;
+    newTask.id=count;
+    console.log(newTask);
+
+    todos.push(newTask);
+    updateDB();
+    res.send({"id":newTask.id});
+  });
+
+  app.put('/todos/:id',(req,res)=>{
+    let newData = req.body;
+    for(let i=0;i<todos.length;i++){
+      let ele=todos[i];
+      if(ele.id==req.params.id){
+        ele.title=newData.title;
+        ele.completed = newData.completed;
+        updateDB();
+        return res.send("ToDos updated");
+      }
+    }
+    res.status(404).send("Item not found");
+  });
+  
+  app.delete('/todos/:id',(req,res)=>{
+    for(let i=0;i<todos.length;i++){
+      let ele=todos[i];
+      if(ele.id==req.params.id){
+        todos.pop(i);
+        updateDB();
+        return res.send("Item Deleted");
+      }
+    }
+    res.status(404).send("Item not found");
+  });
+
+  app.use((req, res) => {
+    res.status(404).send('404 Not Found');
+  });
+
+  app.listen(port, ()=>{
+    console.log(`Server is listening on port ${3000}`);
+  });
+
   module.exports = app;

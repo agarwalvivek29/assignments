@@ -15,7 +15,45 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const bodyParser = require('body-parser');
 const app = express();
+const port = 3000;
 
+app.get('/:folder',(req,res)=>{
+  let folder = req.params.folder;
+  let folderPath = path.join("C:/Users/vivek/Github/100xdevs_MERN/week-2/02-nodejs", folder); 
+
+  fs.readdir(folderPath,'utf-8',(err,files)=>{
+    if(err){
+      console.error("Kuch to galat h bhidu idhar!!");
+      console.log(err);
+      res.status(404).send("Route not found");
+    }
+    else{
+      res.send(files);
+    }
+  });
+});
+
+app.get('/:folder/:file',(req,res)=>{
+  let folder = req.params.folder;
+  let file = req.params.file;
+  let folderPath = path.join("C:/Users/vivek/Github/100xdevs_MERN/week-2/02-nodejs", folder,file);
+
+  fs.readFile(folderPath,'utf-8',(err,data)=>{
+    if(err){
+      console.error("Bhiduu phirse nahi yaar!!!");
+      res.status(404).send("File not found");
+    }
+    else{
+      res.send(data);
+    }
+  });
+
+});
+
+app.listen(port,()=>{
+  console.log(`Server is listening on port:${port}`);
+});
 
 module.exports = app;
