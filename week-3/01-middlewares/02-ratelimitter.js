@@ -12,9 +12,31 @@ const app = express();
 // clears every one second
 
 let numberOfRequestsForUser = {};
-setInterval(() => {
-    numberOfRequestsForUser = {};
-}, 1000)
+function userTimer(username){
+  setTimeout(()=>{
+    numberOfRequestsForUser[username] = 0;
+  },1000);
+}
+
+function middleware(req,res,next){
+  let username = req.headers['user-id'];
+  if(numberOfRequestsForUser.hasOwnProperty(username)){
+    if(numberOfRequestsForUser[username]>5){
+      res.status(404).send("Number or Requests/sec exceeded");
+      userTimer(username);
+      return;
+    }
+    else{
+      numberOfRequestsForUser[username]+=1;
+    }
+  }
+  else{
+    numberOfRequestsForUser[username]=1;
+  }
+  next();
+}
+
+app.use(middleware);
 
 app.get('/user', function(req, res) {
   res.status(200).json({ name: 'john' });

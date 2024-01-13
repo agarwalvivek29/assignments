@@ -29,14 +29,13 @@ function verifyJwt(token) {
     return ans;
 }
 
-function decodeJwt(token) {
+function decodeJwt(token){
     // true, false
     const decoded = jwt.decode(token);
-    if (decoded) {
+    if(decoded){
         return true;
-    } else {
-        return false;
     }
+    return false;
 }
 
 module.exports = {
